@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="favicon.ico">
+<meta name="robots" content="noindex,nofollow">
+<title>Vikas Counter Lookup</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ink:#1B1612; --surface:#FFFFFF; --ground:#F6F2EB; --line:#E1D7C9; --line2:#EEE7DC;
+  --muted:#6C6156; --fast:#14623E; --fast-bg:#DFF0E6; --mid:#8A5810; --mid-bg:#FAEEDA;
+  --slow:#4A4036; --slow-bg:#EBE4DA; --none:#94281E; --none-bg:#F8E2E0; --focus:#E08A00;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ink:#F2EBE2; --surface:#221B16; --ground:#16110D; --line:#3B3128; --line2:#2C241D;
+  --muted:#B3A596; --fast:#7ED3A4; --fast-bg:#16321F; --mid:#E3B36A; --mid-bg:#33260F;
+  --slow:#C9BBAA; --slow-bg:#2E261F; --none:#F0A099; --none-bg:#391916; --focus:#FFB830;
+}}
+:root[data-theme="dark"]{
+  --ink:#F2EBE2; --surface:#221B16; --ground:#16110D; --line:#3B3128; --line2:#2C241D;
+  --muted:#B3A596; --fast:#7ED3A4; --fast-bg:#16321F; --mid:#E3B36A; --mid-bg:#33260F;
+  --slow:#C9BBAA; --slow-bg:#2E261F; --none:#F0A099; --none-bg:#391916; --focus:#FFB830;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:Barlow,system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;
+  background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{background:#3B2D24;border-bottom:3px solid #FF9900;color:#fff}
+.hrow{display:flex;align-items:center;gap:12px;padding-block:8px}
+.logo{height:34px;width:auto;display:block;flex-shrink:0}
+h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:600;font-size:21px;
+  letter-spacing:.03em;margin:0;text-transform:uppercase;color:#fff}
+.asof{font-size:12px;color:rgba(255,255,255,.74);margin-left:auto;font-variant-numeric:tabular-nums}
+.out{flex-shrink:0;margin-left:12px;font-size:13.5px;font-weight:500;color:#fff;text-decoration:none;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.38);border-radius:7px;padding:5px 12px}
+.out:hover{border-color:#fff}
+.out:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+@media (max-width:520px){
+  .hrow{flex-wrap:wrap;row-gap:2px}
+  .asof{order:3;flex-basis:100%;margin-left:0}
+  .out{margin-left:auto}
+}
+.banner{margin:0 0 10px;padding:8px 11px;border-radius:7px;font-size:13px;line-height:1.35}
+.banner.warn{background:var(--none-bg);color:var(--none)}
+.banner.ok{background:var(--fast-bg);color:var(--fast)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;padding-block:10px 12px}
+#q{flex:2 1 220px;min-width:0}
+#cat{flex:1 1 150px;min-width:0}
+#q,#cat{font-size:16px;font-family:inherit;color:var(--ink);background:var(--ground);
+  border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+#q:focus,#cat:focus{outline:2px solid var(--focus);outline-offset:1px;border-color:transparent}
+.stats{display:flex;gap:8px;padding-block:12px}
+.stat{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+.stat b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:25px;font-weight:600;
+  line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.count{font-size:13px;color:var(--muted);padding-block:4px 8px}
+ul{list-style:none;margin:0;padding:0 0 28px;display:flex;flex-direction:column;gap:8px}
+li{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:12px 13px 8px}
+.mdl{font-family:"Barlow Condensed",monospace;font-weight:600;font-size:18px;letter-spacing:.03em}
+.pn{font-size:13.5px;color:var(--muted);overflow-wrap:anywhere}
+.cat{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;
+  margin-bottom:9px;display:block}
+.opt{display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid var(--line2)}
+.when{flex-shrink:0;border-radius:5px;padding:4px 8px;min-width:76px;text-align:center;
+  font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:14.5px;
+  letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.t1{background:var(--fast-bg);color:var(--fast)}
+.t6{background:var(--mid-bg);color:var(--mid)}
+.t10,.tD{background:var(--slow-bg);color:var(--slow)}
+.who{min-width:0;flex:1}
+.vn{font-size:14.5px;font-weight:500;overflow-wrap:anywhere}
+.tag{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:block}
+.money{text-align:right;flex-shrink:0;white-space:nowrap}
+.dp{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:20px;
+  font-variant-numeric:tabular-nums;line-height:1.15}
+.mrp{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-left:8px}
+.star{color:var(--muted);font-size:13px}
+.noprice{border-top:1px solid var(--line2);padding:8px 0 4px;font-size:13.5px;color:var(--none)}
+.pending{border-top:1px solid var(--line2);padding:8px 0 4px;font-size:12.5px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:34px 0;font-size:15px;background:none;border:0}
+footer{border-top:1px solid var(--line);padding-block:14px 26px;font-size:12.5px;color:var(--muted)}
+footer p{margin:0 0 6px}
+.more{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;padding:11px;cursor:pointer}
+.more:hover{border-color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+body.locked header,body.locked main,body.locked footer{display:none}
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+#gate[hidden]{display:none}
+.gatebox{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;padding:22px 20px;text-align:center}
+.gatebox img{height:44px;width:auto;margin-bottom:6px}
+.gatebox h2{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:600;font-size:24px;
+  letter-spacing:.03em;text-transform:uppercase;margin:4px 0 6px}
+.gatebox p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.gatebox input[type=password]{width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--ground);
+  border:1px solid var(--line);border-radius:8px;padding:12px 13px;margin-bottom:10px}
+.gatebox input:focus{outline:2px solid var(--focus);outline-offset:1px}
+.gatebox label{display:flex;gap:8px;align-items:center;justify-content:center;font-size:13.5px;
+  color:var(--muted);margin-bottom:12px}
+.gatebox button{width:100%;font:inherit;font-weight:600;font-size:16px;color:#1B1612;background:#F9AB08;
+  border:0;border-radius:8px;padding:12px;cursor:pointer}
+.gatebox .gmsg{color:var(--none);margin:12px 0 0;min-height:1.3em;font-size:14px}
+</style>
+
+<div id="gate">
+  <div class="gatebox">
+    <img src="logo-head.png" alt="Vikas Tool Mart">
+    <h2>Counter lookup</h2>
+    <p>Type the shop passphrase to open the prices.</p>
+    <form id="gform" autocomplete="on">
+      <input id="gpass" type="password" placeholder="Passphrase" autocomplete="current-password" required>
+      <label><input id="gkeep" type="checkbox" checked> Remember on this phone</label>
+      <button type="submit">Open prices</button>
+    </form>
+    <p class="gmsg" id="gmsg" role="status" aria-live="polite"></p>
+  </div>
+</div>
+<header>
+  <div class="bar"><div class="wrap hrow">
+    <img class="logo" src="logo-head.png" alt="Vikas Tool Mart" width="85" height="34">
+    <h1>Counter lookup</h1>
+    <span class="asof" id="asof">Rates as of ...</span>
+    <a class="out" href="#" id="lock">Lock</a>
+  </div></div>
+  <div class="wrap">
+    <p class="banner warn" id="fixed" hidden>This is a fixed copy and will not update.
+      Open the shop link instead to see live prices.</p>
+    <p class="banner ok" id="flash" hidden>Prices just updated.</p>
+    <div class="controls">
+      <label for="q" class="sr">Search by model number or product name</label>
+      <input id="q" type="search" autocomplete="off" placeholder="Model number, e.g. CDLI205581">
+      <label for="cat" class="sr">Filter by category</label>
+      <select id="cat"><option value="">All categories</option></select>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="stats">
+    <div class="stat"><b id="total">0</b><span>Models</span></div>
+    <div class="stat"><b id="priced">0</b><span>Can quote</span></div>
+    <div class="stat"><b id="fast">0</b><span>Next day</span></div>
+  </div>
+  <p class="count" id="count" aria-live="polite"></p>
+  <ul id="list"></ul>
+  <button class="more" id="more" hidden>Show more</button>
+</main>
+
+<footer class="wrap">
+  <p>The large figure is the DP, what the customer pays. MRP next to it is the list price, for comparison.</p>
+  <p>Every vendor holding the item is listed, so the same delivery time can appear more than once.</p>
+  <p><span class="star">*</span> Rate still being confirmed with that vendor &mdash; check with the owner before promising it.</p>
+</footer>
+
+<script>
+var DATA = [];
+var PAGE = 25, shown = PAGE, cur = DATA;
+var list = document.getElementById('list'), count = document.getElementById('count'),
+    more = document.getElementById('more'), q = document.getElementById('q'),
+    cat = document.getElementById('cat');
+
+function whenLabel(d){ return d <= 1 ? 'Tomorrow' : d + ' days'; }
+function money(n){ return '\u20B9' + n.toLocaleString('en-IN'); }
+function esc(s){
+  return String(s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+
+function card(r){
+  var h = '<li><div class="mdl">' + esc(r.m) + '</div>' +
+          '<div class="pn">' + esc(r.p || 'Product name not listed') + '</div>' +
+          '<span class="cat">' + esc(r.c || 'Uncategorised') + '</span>';
+  if (!r.o.length){
+    h += '<div class="noprice">No vendor can supply this today</div>';
+    if (r.np && r.np.length){
+      h += '<div class="pending">Listed by ' + esc(r.np.join(', ')) + ', rate not received yet</div>';
+    }
+    return h + '</li>';
+  }
+  var cheapest = r.o[0].dp, multi = r.o.length > 1, nTier = 0, seen = {};
+  for (var i = 0; i < r.o.length; i++){
+    if (r.o[i].dp < cheapest) cheapest = r.o[i].dp;
+    if (!seen[r.o[i].d]){ seen[r.o[i].d] = 1; nTier++; }
+  }
+  for (var j = 0; j < r.o.length; j++){
+    var o = r.o[j], tag = '';
+    if (multi){
+      if (o.dp === cheapest) tag = '<span class="tag">Best price</span>';
+      else if (j === 0 && nTier > 1) tag = '<span class="tag">Fastest</span>';
+    }
+    h += '<div class="opt">' +
+         '<span class="when t' + (o.d <= 1 ? '1' : (o.d <= 6 ? '6' : '10')) + '">' +
+         whenLabel(o.d) + '</span>' +
+         '<span class="who"><span class="vn">' + esc(o.v) + '</span>' + tag + '</span>' +
+         '<span class="money"><span class="dp">' + money(o.dp) +
+         (o.prov ? '<span class="star">*</span>' : '') + '</span>' +
+         '<span class="mrp">MRP ' + money(o.mrp) + '</span></span>' +
+         '</div>';
+  }
+  if (r.np && r.np.length){
+    h += '<div class="pending">Also listed by ' + esc(r.np.join(', ')) + ', rate not received yet</div>';
+  }
+  return h + '</li>';
+}
+
+function render(){
+  var slice = cur.slice(0, shown), html = '';
+  for (var i = 0; i < slice.length; i++){ html += card(slice[i]); }
+  list.innerHTML = html || '<li class="empty">Nothing matches that search.</li>';
+  count.textContent = cur.length
+    ? 'Showing ' + Math.min(shown, cur.length) + ' of ' + cur.length.toLocaleString() + ' matches'
+    : '';
+  more.hidden = shown >= cur.length;
+}
+
+function apply(){
+  var v = q.value.trim().toUpperCase().replace(/\s+/g, ''), c = cat.value;
+  cur = DATA.filter(function(r){
+    if (c && (r.c || 'Uncategorised') !== c) return false;
+    if (!v) return true;
+    return r.m.indexOf(v) > -1 || (r.p || '').toUpperCase().replace(/\s+/g, '').indexOf(v) > -1;
+  });
+  shown = PAGE; render();
+}
+
+q.addEventListener('input', apply);
+cat.addEventListener('change', apply);
+more.addEventListener('click', function(){ shown += PAGE; render(); });
+render();
+
+function recount(rows){
+  var p = 0, f = 0, cats = {}, i, r, c;
+  for (i = 0; i < rows.length; i++){
+    r = rows[i];
+    if (r.o && r.o.length){ p++; if (r.o[0].d === 1) f++; }
+    c = r.c || 'Uncategorised';
+    cats[c] = (cats[c] || 0) + 1;
+  }
+  document.getElementById('total').textContent = rows.length.toLocaleString();
+  document.getElementById('priced').textContent = p.toLocaleString();
+  document.getElementById('fast').textContent = f.toLocaleString();
+  var keep = cat.value;
+  cat.innerHTML = '<option value="">All categories</option>' +
+    Object.keys(cats).sort().map(function(n){
+      return '<option value="' + n + '">' + n + ' (' + cats[n] + ')</option>';
+    }).join('');
+  cat.value = keep;
+}
+
+// The prices are encrypted in data.json and opened here with the shop passphrase
+// (PBKDF2 -> AES-GCM, in the browser). v.json is a tiny file checked every minute; when
+// its stamp changes, data.json is fetched again and opened with the key already held.
+var STAMP = null, KEY = null, BOX = null, KEEP = 'vtmKey1';
+var gate = document.getElementById('gate'), gform = document.getElementById('gform'),
+    gpass = document.getElementById('gpass'), gmsg = document.getElementById('gmsg'),
+    gkeep = document.getElementById('gkeep');
+document.body.classList.add('locked');
+
+function fromB64(s){ var bin = atob(s), a = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
+function toB64(buf){ var a = new Uint8Array(buf), s = '';
+  for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); }
+function getJSON(name){
+  return fetch(name + '?cb=' + Date.now(), {cache: 'no-store'}).then(function(r){
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
+}
+function openBox(box, key){
+  return crypto.subtle.decrypt({name: 'AES-GCM', iv: fromB64(box.iv)}, key, fromB64(box.ct))
+    .then(function(buf){ return JSON.parse(new TextDecoder().decode(buf)); });
+}
+function derive(pass, box){
+  return crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey'])
+    .then(function(base){
+      return crypto.subtle.deriveKey({name: 'PBKDF2', salt: fromB64(box.salt), iterations: box.iter, hash: 'SHA-256'},
+                                     base, {name: 'AES-GCM', length: 256}, true, ['decrypt']);
+    });
+}
+function showPrices(payload, box, fresh){
+  BOX = box; STAMP = box.stamp;
+  DATA = payload.rows || [];
+  document.getElementById('asof').textContent = 'Rates as of ' + (payload.built || box.built || '');
+  recount(DATA);
+  apply();
+  gate.hidden = true;
+  document.body.classList.remove('locked');
+  if (fresh){
+    var f = document.getElementById('flash');
+    if (f){ f.hidden = false; setTimeout(function(){ f.hidden = true; }, 4000); }
+  }
+}
+function forget(){ try { localStorage.removeItem(KEEP); } catch (e) {} }
+function remember(key, box){
+  if (!gkeep.checked) return;
+  crypto.subtle.exportKey('raw', key).then(function(raw){
+    try { localStorage.setItem(KEEP, JSON.stringify({salt: box.salt, key: toB64(raw)})); } catch (e) {}
+  });
+}
+function savedKey(box){
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem(KEEP) || 'null'); } catch (e) {}
+  if (!s || s.salt !== box.salt) return Promise.reject(new Error('no saved key'));
+  return crypto.subtle.importKey('raw', fromB64(s.key), {name: 'AES-GCM'}, true, ['decrypt']);
+}
+
+function start(){
+  if (!(window.crypto && crypto.subtle && window.fetch && window.Promise)){
+    gmsg.textContent = 'This browser cannot open the locked page. Use a recent Chrome, Safari or Edge.';
+    return;
+  }
+  getJSON('data.json').then(function(box){
+    BOX = box;
+    return savedKey(box)
+      .then(function(key){ return openBox(box, key).then(function(p){ KEY = key; showPrices(p, box, false); }); })
+      .catch(function(){ forget(); gpass.focus(); });     // no key held, or the passphrase was changed
+  }).catch(function(){
+    gmsg.textContent = 'Could not load the prices. Check the internet connection, then reload.';
+  });
+}
+
+gform.addEventListener('submit', function(e){
+  e.preventDefault();
+  if (!BOX){ start(); return; }
+  gmsg.textContent = 'Opening...';
+  derive(gpass.value, BOX)
+    .then(function(key){ return openBox(BOX, key).then(function(p){ KEY = key; remember(key, BOX); showPrices(p, BOX, false); }); })
+    .catch(function(){ gmsg.textContent = 'That passphrase is not right. Try again.'; gpass.select(); });
+});
+
+var lockBtn = document.getElementById('lock');
+if (lockBtn) lockBtn.addEventListener('click', function(e){ e.preventDefault(); forget(); location.reload(); });
+
+function poll(){
+  if (!KEY) return;
+  getJSON('v.json').then(function(v){
+    if (!v || v.stamp === STAMP) return null;
+    return getJSON('data.json').then(function(box){ return openBox(box, KEY).then(function(p){ showPrices(p, box, true); }); });
+  }).catch(function(e){
+    if (e && e.name === 'OperationError'){ forget(); location.reload(); }     // the passphrase was changed
+    /* offline: keep showing the last prices */
+  });
+}
+start();
+setInterval(poll, 60000);
+</script>
